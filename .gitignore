@@ -1,0 +1,42 @@
+# Terraform
+**/.terraform/
+**/.terraform.lock.hcl
+**/terraform.tfstate
+**/terraform.tfstate.backup
+**/terraform.tfstate.d/
+**/tfplan
+**/terraform.tfvars
+!**/terraform.tfvars.example
+
+# Build artifacts
+dist/
+**/target/
+**/node_modules/
+**/.DS_Store
+
+# Java
+*.class
+*.jar
+!dist/backend/app.jar
+
+# Env files
+.env
+.env.local
+**/.env
+**/.env.local
+!**/.env.example
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# Logs
+*.log
+logs/
+
+# Application build artifacts
+application/backend/target/
+application/frontend/dist/
+application/frontend/node_modules/

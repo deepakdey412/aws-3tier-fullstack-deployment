@@ -1,0 +1,12 @@
+variable "name"               { type = string }
+variable "internal"           { type = bool }
+variable "security_group_ids" { type = list(string) }
+variable "subnet_ids"         { type = list(string) }
+variable "vpc_id"             { type = string }
+variable "target_port"        { type = number }
+variable "health_check_path"  { type = string }
+variable "environment"        { type = string }
+variable "project_name"       { type = string }
+variable "alb_type"           { type = string }
+variable "s3_bucket_id"       { type = string }
+variable "s3_bucket_arn"      { type = string }
