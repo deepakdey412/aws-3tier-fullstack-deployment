@@ -238,3 +238,20 @@ GET    /actuator/health    Spring Boot actuator
 | ALB              | 750 hrs/mo first 12 mo | 2 ALBs                                |
 
 > **Note:** NAT Gateways are the main cost driver (~$64/mo). For dev/test you can reduce to 1 NAT gateway.
+
+---
+
+<div align="center">
+
+<!-- ![Star GIF](https://i.pinimg.com/originals/72/96/08/729608d3758eb6928e690689c54a8a30.gif) -->
+
+### 🚀 Found this project useful?
+
+[![LinkedIn](https://img.shields.io/badge/Connect%20on-LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/deepakdey/)
+[![GitHub stars](https://img.shields.io/github/stars/deepakdey412/aws-3tier-fullstack-deployment?style=for-the-badge&color=FFD700&logo=github)](https://github.com/deepakdey412/aws-3tier-fullstack-deployment/stargazers)
+
+**Drop a ⭐ on this repo and DM me on LinkedIn for any queries!**
+
+</div>
+
+---
