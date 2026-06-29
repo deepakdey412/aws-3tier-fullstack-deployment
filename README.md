@@ -13,6 +13,31 @@ A complete, production-grade inventory CRUD application deployed on AWS using a 
 
 ## Architecture Overview
 
+<!-- Architecture diagram placeholder -->
+<img src="output-screenshot/00-project-archetecture.png" alt="S3 Backend Created" width="100%">
+
+---
+
+## Getting Started
+
+**Detailed instructions, AWS console checks, and troubleshooting:** [QUICK-START.md](QUICK-START.md)
+
+---
+
+## Deployment Walkthrough **Quick-start instructions** [QUICK-START.md](QUICK-START.md)
+
+### Step 1 — S3 Backend Created
+
+<img src="output-screenshot/01-s3-backend-created.png" alt="S3 Backend Created" width="100%">
+
+### Step 2 — S3 Backend Configured for Infrastructure
+
+<img src="output-screenshot/02-s3-backend-configure-for-infra.png" alt="S3 Backend Configured for Infra" width="100%">
+
+### Step 3 — Resources Created
+
+<img src="output-screenshot/03-resouces-created.png" alt="Resources Created" width="100%">
+
 ---
 
 ## AWS Components
@@ -28,6 +53,16 @@ A complete, production-grade inventory CRUD application deployed on AWS using a 
 | Internet Gateway    | Public traffic ingress                    |
 | NAT Gateways        | 2× (one per AZ) for private subnet egress |
 
+### Step 4 — VPC AWS 3-Tier Network
+
+<img src="output-screenshot/04-vpc-aws-3tire.png" alt="VPC AWS 3-Tier" width="100%">
+
+### Step 5 — Six Subnets
+
+<img src="output-screenshot/05-six-subnets.png" alt="Six Subnets" width="100%">
+
+---
+
 ### Compute
 
 | Resource         | Details                                     |
@@ -36,6 +71,12 @@ A complete, production-grade inventory CRUD application deployed on AWS using a 
 | App ASG          | 1–4 × t3.micro, Ubuntu, Spring Boot JAR     |
 | Launch Templates | IMDSv2 enforced, EBS encrypted, gp3 volumes |
 
+### Step 6 — Web and App Instances
+
+<img src="output-screenshot/06-web-and-app-instances.png" alt="Web and App Instances" width="100%">
+
+---
+
 ### Load Balancers
 
 | ALB     | Type            | Listener             |
@@ -43,11 +84,89 @@ A complete, production-grade inventory CRUD application deployed on AWS using a 
 | Web ALB | Internet-facing | HTTP :80 → Web ASG   |
 | App ALB | Internal        | HTTP :8080 → App ASG |
 
+### Step 7 — Web and App Load Balancers
+
+<img src="output-screenshot/07-web-and-app-load-balancers.png" alt="Web and App Load Balancers" width="100%">
+
+### Step 8 — Web and App Target Groups
+
+<img src="output-screenshot/08-web-and-app-target-groups.png" alt="Web and App Target Groups" width="100%">
+
+---
+
 ### Database
 
 | Resource      | Details                                   |
 | ------------- | ----------------------------------------- |
 | RDS MySQL 8.0 | Multi-AZ (Primary + Standby), db.t3.micro |
+
+### Step 9 — RDS Multi-AZ
+
+<img src="output-screenshot/09-rds.png" alt="RDS Multi-AZ" width="100%">
+
+---
+
+## Build & Deploy
+
+### Step 10 — Push App Build to S3 and Refresh
+
+<img src="output-screenshot/10-push-app-build-in-s3-and-refersh.png" alt="Push App Build to S3 and Refresh" width="100%">
+
+### Step 11 — All New Instances Created
+
+<img src="output-screenshot/11-all-new-instances-created.png" alt="All New Instances Created" width="100%">
+
+---
+
+## Application Output
+
+### Step 12 — Application Frontend Live
+
+<img src="output-screenshot/12-application-frontend.png" alt="Application Frontend" width="100%">
+
+### Step 13 — S3 Artifacts
+
+<img src="output-screenshot/13-s3.png" alt="S3 Artifacts" width="100%">
+
+### Step 14 — CloudWatch Monitoring
+
+<img src="output-screenshot/14-cloud-watch.png" alt="CloudWatch Monitoring" width="100%">
+
+---
+
+## Infrastructure Destroyed
+
+### Step 15 — Infra Destroyed
+
+<img src="output-screenshot/15-infra-destoryed.png" alt="Infrastructure Destroyed" width="100%">
+
+---
+
+## Project Structure
+
+```
+aws-3tier-app/
+├── README.md                   # Project overview and architecture
+├── QUICK-START.md              # Complete deployment guide
+├── application/                # Application code
+│   ├── frontend/              # React + Vite frontend
+│   └── backend/               # Spring Boot backend
+├── terraform/                 # Infrastructure as Code
+│   ├── backend-setup/         # S3 backend for Terraform state
+│   ├── environments/prod/     # Production environment config
+│   └── modules/               # Reusable Terraform modules
+├── scripts/                   # Build, deploy, and verification scripts
+│   ├── build.sh              # Build frontend and backend
+│   ├── deploy.sh             # Deploy to AWS
+│   ├── verify.sh             # Verify deployment
+│   ├── check-prerequisites.sh # Check required tools
+│   └── validate-project.sh   # Validate project structure
+└── dist/                      # Build artifacts (generated)
+    ├── frontend/             # React production build
+    └── backend/              # Spring Boot JAR
+```
+
+---
 
 ### Security Groups — Flow
 
@@ -91,50 +210,6 @@ GET    /api/items/search?q Search by name/description
 GET    /api/health         Health check (used by ALB)
 GET    /actuator/health    Spring Boot actuator
 ```
-
----
-
-## Project Structure
-
-```
-aws-3tier-app/
-├── README.md                    # Project overview and architecture
-├── QUICK-START.md              # Complete deployment guide
-├── FREE-TIER.txt               # Cost optimization guide
-├── application/                # Application code
-│   ├── frontend/              # React + Vite frontend
-│   └── backend/               # Spring Boot backend
-├── terraform/                 # Infrastructure as Code
-│   ├── backend-setup/         # S3 backend for Terraform state
-│   ├── environments/prod/     # Production environment config
-│   └── modules/               # Reusable Terraform modules
-├── scripts/                   # Build, deploy, and verification scripts
-│   ├── build.sh              # Build frontend and backend
-│   ├── deploy.sh             # Deploy to AWS
-│   ├── verify.sh             # Verify deployment
-│   ├── check-prerequisites.sh # Check required tools
-│   └── validate-project.sh   # Validate project structure
-└── dist/                      # Build artifacts (generated)
-    ├── frontend/             # React production build
-    └── backend/              # Spring Boot JAR
-```
-
----
-
-## Getting Started
-
-📖 **Complete deployment guide:** See [QUICK-START.md](QUICK-START.md)
-
-**Quick Overview:**
-
-1. Check prerequisites → `./scripts/check-prerequisites.sh`
-2. Setup Terraform backend → `cd terraform/backend-setup && terraform apply`
-3. Deploy infrastructure → `cd terraform/environments/prod && terraform apply`
-4. Build application → `./scripts/build.sh`
-5. Deploy application → `./scripts/deploy.sh`
-6. Verify → `./scripts/verify.sh --wait`
-
-**Detailed instructions, AWS console checks, and troubleshooting:** [QUICK-START.md](QUICK-START.md)
 
 ---
 
