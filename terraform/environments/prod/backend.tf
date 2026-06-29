@@ -1,4 +1,3 @@
-# Uncomment and configure after running backend-setup
 
 terraform {
   backend "s3" {
@@ -6,7 +5,7 @@ terraform {
     key     = "prod/terraform.tfstate"
     region  = "ap-south-1"
     encrypt = true
-    
+
     # S3 native state locking (no DynamoDB needed)
     use_lockfile = true
   }

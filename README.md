@@ -13,112 +13,74 @@ A complete, production-grade inventory CRUD application deployed on AWS using a 
 
 ## Architecture Overview
 
-```
-Internet
-    │
-    ▼
-Route 53 (optional) ──► ACM (SSL, optional)
-    │
-    ▼
-┌─────────────────────────────────────────────────┐
-│              VPC  10.0.0.0/16                   │
-│                                                 │
-│  ┌──────────────────────────────────────────┐   │
-│  │   Internet-Facing ALB  (ALB-SG: 80/443)  │   │
-│  └──────────────┬───────────────────────────┘   │
-│                 │                               │
-│  ┌──────────────┼──────────────────────────┐    │
-│  │   WEB TIER   │   Public Subnets          │    │
-│  │  ┌──────────▼──────────────────────┐    │    │
-│  │  │  Auto Scaling Group             │    │    │
-│  │  │  EC2 t3.micro (Nginx + React)   │    │    │
-│  │  │  AZ-1a              AZ-1b       │    │    │
-│  │  └──────────┬──────────────────────┘    │    │
-│  └─────────────┼────────────────────────────    │
-│                │                               │
-│  ┌─────────────┼────────────────────────────┐   │
-│  │  Internal ALB (APP-SG: 8080)             │   │
-│  │  ┌──────────▼──────────────────────┐     │   │
-│  │  │  APP TIER   Private App Subnets  │     │   │
-│  │  │  Auto Scaling Group              │     │   │
-│  │  │  EC2 t3.micro (Spring Boot)      │     │   │
-│  │  │  AZ-1a              AZ-1b        │     │   │
-│  │  └──────────┬───────────────────────┘     │   │
-│  └─────────────┼─────────────────────────────┘   │
-│                │                               │
-│  ┌─────────────┼────────────────────────────┐   │
-│  │  DB TIER    │   Private DB Subnets        │   │
-│  │  ┌──────────▼──────────────────────┐     │   │
-│  │  │  RDS MySQL 8.0  Multi-AZ        │     │   │
-│  │  │  Primary (AZ-1a) ←sync→ Standby │     │   │
-│  │  └─────────────────────────────────┘     │   │
-│  └───────────────────────────────────────────    │
-└─────────────────────────────────────────────────┘
-```
-
 ---
 
 ## AWS Components
 
 ### Networking
-| Resource | Details |
-|---|---|
-| VPC | 10.0.0.0/16, DNS enabled |
-| Public Subnets | 10.0.1.0/24, 10.0.2.0/24 (AZ-1a, AZ-1b) |
-| Private App Subnets | 10.0.3.0/24, 10.0.4.0/24 |
-| Private DB Subnets | 10.0.5.0/24, 10.0.6.0/24 |
-| Internet Gateway | Public traffic ingress |
-| NAT Gateways | 2× (one per AZ) for private subnet egress |
+
+| Resource            | Details                                   |
+| ------------------- | ----------------------------------------- |
+| VPC                 | 10.0.0.0/16, DNS enabled                  |
+| Public Subnets      | 10.0.1.0/24, 10.0.2.0/24 (AZ-1a, AZ-1b)   |
+| Private App Subnets | 10.0.3.0/24, 10.0.4.0/24                  |
+| Private DB Subnets  | 10.0.5.0/24, 10.0.6.0/24                  |
+| Internet Gateway    | Public traffic ingress                    |
+| NAT Gateways        | 2× (one per AZ) for private subnet egress |
 
 ### Compute
-| Resource | Details |
-|---|---|
-| Web ASG | 1–4 × t3.micro, Ubuntu, Nginx serving React |
-| App ASG | 1–4 × t3.micro, Ubuntu, Spring Boot JAR |
+
+| Resource         | Details                                     |
+| ---------------- | ------------------------------------------- |
+| Web ASG          | 1–4 × t3.micro, Ubuntu, Nginx serving React |
+| App ASG          | 1–4 × t3.micro, Ubuntu, Spring Boot JAR     |
 | Launch Templates | IMDSv2 enforced, EBS encrypted, gp3 volumes |
 
 ### Load Balancers
-| ALB | Type | Listener |
-|---|---|---|
-| Web ALB | Internet-facing | HTTP :80 → Web ASG |
-| App ALB | Internal | HTTP :8080 → App ASG |
+
+| ALB     | Type            | Listener             |
+| ------- | --------------- | -------------------- |
+| Web ALB | Internet-facing | HTTP :80 → Web ASG   |
+| App ALB | Internal        | HTTP :8080 → App ASG |
 
 ### Database
-| Resource | Details |
-|---|---|
+
+| Resource      | Details                                   |
+| ------------- | ----------------------------------------- |
 | RDS MySQL 8.0 | Multi-AZ (Primary + Standby), db.t3.micro |
-| Storage | 20 GB gp2, encrypted |
-| Backups | 7-day retention, automated |
-| Slow query log | Enabled, exports to CloudWatch |
 
 ### Security Groups — Flow
+
 ```
 Users → ALB-SG(80/443) → WEB-SG(80/443) → APP-SG(8080) → DB-SG(3306)
 ```
+
 Each layer accepts traffic **only** from the layer directly above it.
 
 ### Supporting Services
-| Service | Purpose |
-|---|---|
-| S3 | Build artifacts, ALB access logs, app backups |
-| CloudWatch | Dashboards, CPU/storage alarms, log groups |
-| IAM | EC2 instance profile (SSM + S3 + CW Agent), RDS monitoring role |
-| VPC Flow Logs | All traffic logged to CloudWatch Logs |
-| SNS | Alarm notifications via email |
+
+| Service       | Purpose                                                         |
+| ------------- | --------------------------------------------------------------- |
+| S3            | Build artifacts, ALB access logs, app backups                   |
+| CloudWatch    | Dashboards, CPU/storage alarms, log groups                      |
+| IAM           | EC2 instance profile (SSM + S3 + CW Agent), RDS monitoring role |
+| VPC Flow Logs | All traffic logged to CloudWatch Logs                           |
+| SNS           | Alarm notifications via email                                   |
 
 ---
 
 ## Application Stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | React 18 + Vite 5 — Inventory CRUD UI |
+| Layer      | Technology                                      |
+| ---------- | ----------------------------------------------- |
+| Frontend   | React 18 + Vite 5 — Inventory CRUD UI           |
 | Web Server | Nginx — serves SPA, proxies `/api/*` to App ALB |
-| Backend | Spring Boot 3.2 / Java 21 — REST CRUD API |
-| ORM | Spring Data JPA / Hibernate |
-| Database | MySQL 8.0 — `items` table |
+| Backend    | Spring Boot 3.2 / Java 21 — REST CRUD API       |
+| ORM        | Spring Data JPA / Hibernate                     |
+| Database   | MySQL 8.0 — `items` table                       |
 
 ### API Endpoints
+
 ```
 POST   /api/items          Create item
 GET    /api/items          List all items
@@ -164,6 +126,7 @@ aws-3tier-app/
 📖 **Complete deployment guide:** See [QUICK-START.md](QUICK-START.md)
 
 **Quick Overview:**
+
 1. Check prerequisites → `./scripts/check-prerequisites.sh`
 2. Setup Terraform backend → `cd terraform/backend-setup && terraform apply`
 3. Deploy infrastructure → `cd terraform/environments/prod && terraform apply`
@@ -191,12 +154,12 @@ aws-3tier-app/
 
 ## Cost Estimate (Free Tier Eligible)
 
-| Resource | Free Tier | Notes |
-|---|---|---|
-| EC2 t3.micro × 2 | 750 hrs/mo first 12 mo | 4 instances across 2 ASGs |
-| RDS db.t3.micro | 750 hrs/mo first 12 mo | Multi-AZ doubles cost after free tier |
-| S3 | 5 GB free | Logs and artifacts |
-| NAT Gateways | **Not free** | ~$32/mo per gateway × 2 |
-| ALB | 750 hrs/mo first 12 mo | 2 ALBs |
+| Resource         | Free Tier              | Notes                                 |
+| ---------------- | ---------------------- | ------------------------------------- |
+| EC2 t3.micro × 2 | 750 hrs/mo first 12 mo | 4 instances across 2 ASGs             |
+| RDS db.t3.micro  | 750 hrs/mo first 12 mo | Multi-AZ doubles cost after free tier |
+| S3               | 5 GB free              | Logs and artifacts                    |
+| NAT Gateways     | **Not free**           | ~$32/mo per gateway × 2               |
+| ALB              | 750 hrs/mo first 12 mo | 2 ALBs                                |
 
 > **Note:** NAT Gateways are the main cost driver (~$64/mo). For dev/test you can reduce to 1 NAT gateway.
